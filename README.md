@@ -69,3 +69,26 @@ BenchmarkWHSerial-4     	    3516	    341486 ns/op	    1934 B/op	      41 allocs
 BenchmarkWHSerial-8     	    3523	    526883 ns/op	    1935 B/op	      40 allocs/op
 BenchmarkWHParallel     	    3423	    341600 ns/op	    1946 B/op	      41 allocs/op
 ```
+
+## 300 regions + Mutex + Region Index
+```
+go test -bench=. -cpu 1,2,4,8 -benchmem -cpuprofile=cpu.out -memprofile=mem.out
+goos: linux
+goarch: amd64
+BenchmarkWHSerial       	   26665	     66836 ns/op	   19913 B/op	     414 allocs/op
+BenchmarkWHSerial-2     	   10000	    110450 ns/op	   34568 B/op	     712 allocs/op
+BenchmarkWHSerial-4     	    7467	    168922 ns/op	   49552 B/op	    1009 allocs/op
+BenchmarkWHSerial-8     	    6375	    203547 ns/op	   64669 B/op	    1304 allocs/op
+BenchmarkWHParallel     	    4825	    274171 ns/op	   80082 B/op	    1598 allocs/op
+```
+
+## 1000 regions + Mutex + Region Index
+```
+time go test -bench=. -cpu 1,2,4,8 -benchmem -cpuprofile=cpu.out -memprofile=mem.out
+goos: linux
+goarch: amd64
+BenchmarkWHSerial       	   64258	     25393 ns/op	    6446 B/op	     134 allocs/op
+BenchmarkWHSerial-2     	   30985	     48734 ns/op	   12303 B/op	     255 allocs/op
+BenchmarkWHSerial-4     	   20785	     63798 ns/op	   18284 B/op	     374 allocs/op
+BenchmarkWHSerial-8     	   10000	    106853 ns/op	   22862 B/op	     463 allocs/op
+```

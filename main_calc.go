@@ -19,22 +19,18 @@ func GetGoods4Sale(goods_id int64, region_id int64) Goods4Sale {
     return res
   }
   res.Prod = *p
-  for _, shop := range memShop {
-    if shop.Region_ID == region_id {
-      t := RlGetGoodsInShop(goods_id, shop.CODE)
-      if t.Quantity > 0 {
-        res.Quantity += t.Quantity
-        res.Shops = append(res.Shops, shop)
-      }
+  for _, shop_code := range GetShopByRegionID(region_id) {
+    t := RlGetGoodsInShop(goods_id, shop_code)
+    if t.Quantity > 0 {
+      res.Quantity += t.Quantity
+      res.Shops = append(res.Shops, (*GetShopByID(shop_code)))
     }
   }
-  for _, warehouse := range memWH {
-    if warehouse.Region_ID == region_id {
-      t := RlGetGoodsInWarehouse(goods_id, warehouse.CODE)
-      if t.Quantity > 0 {
-        res.Quantity += t.Quantity
-        res.Warehouses = append(res.Warehouses, warehouse)
-      }
+  for _, warehouse_code := range GetWarehousesByRegionID(region_id) {
+    t := RlGetGoodsInWarehouse(goods_id, warehouse_code)
+    if t.Quantity > 0 {
+      res.Quantity += t.Quantity
+      res.Warehouses = append(res.Warehouses, (*GetWarehouseByCode(warehouse_code)))
     }
   }
   return res
