@@ -3,12 +3,25 @@ package main
 import (
   "fmt"
   "math/rand"
+  "strconv"
   "testing"
   "github.com/stretchr/testify/assert"
 )
 
+func BenchmarkWrite(b *testing.B) {
+  //fillData4Tests()
+  LoadAll()
+  b.ResetTimer()
+  SaveAll()
+}
+
+func BenchmarkRead(b *testing.B) {
+  LoadAll()
+}
+
 func BenchmarkWHSerial(b *testing.B) {
-  fillData4Tests()
+  //fillData4Tests()
+  LoadAll()
   
   //assert.Equal(b, &Warehouse{CODE:"a4", Name:"Name_WH_4", Description:""},   GetWarehouseByCode("a4"))
   //assert.Equal(b, &Warehouse{CODE:"a23", Name:"Name_WH_23", Description:""}, GetWarehouseByCode("a23"))
@@ -34,7 +47,8 @@ func BenchmarkWHSerial(b *testing.B) {
 
 
 func BenchmarkWHParallel(b *testing.B) {
-  fillData4Tests()
+  //fillData4Tests()
+  LoadAll()
   
   assert.Equal(b, &Goods{ID:1,      Name:"Product_1", Description:""}, GetGoodsByID(1))
   assert.Equal(b, &Goods{ID:543,    Name:"Product_543", Description:""}, GetGoodsByID(543))
@@ -42,13 +56,17 @@ func BenchmarkWHParallel(b *testing.B) {
   assert.Equal(b, &Goods{ID:id, Name:fmt.Sprintf("Product_%d", id), Description:""}, GetGoodsByID(id))
   
   b.ResetTimer()
-    
-	b.RunParallel(func(pb *testing.PB) {
-		for pb.Next() {
-      goods_id := rand.Int63n(GoodsCount())
-      p := GetGoods4Sale(goods_id, rand.Int63n(RegionCount()))
-      
-      assert.Equal(b, GetGoodsByID(goods_id), &p.Prod)
-		}
-	})
+  for i := 1; i <= 8; i *= 2 {
+		b.Run(strconv.Itoa(i), func(b *testing.B) {
+			b.SetParallelism(i)
+      b.RunParallel(func(pb *testing.PB) {
+        for pb.Next() {
+          goods_id := rand.Int63n(GoodsCount())
+          p := GetGoods4Sale(goods_id, rand.Int63n(RegionCount()))
+          
+          assert.Equal(b, GetGoodsByID(goods_id), &p.Prod)
+        }
+      })
+    })
+  }
 }

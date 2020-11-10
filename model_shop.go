@@ -2,6 +2,9 @@ package main
 
 import (
   "sync"
+  "encoding/gob"
+  "os"
+  "github.com/golang/glog"
 )
 
 // Магазины
@@ -49,5 +52,50 @@ func GetShopByRegionID(region_id int64) ([]string) {
     return items
   }
   return make([]string, 0)
+}
+
+func WriteFileShops(wg *sync.WaitGroup, filename string) {
+  defer wg.Done()
+  file, _ := os.Create(filename)
+  defer file.Close()
+  encoder := gob.NewEncoder(file)
+  encoder.Encode(memShop)
+
+  fileIndex, _ := os.Create(filename+".index")
+  defer fileIndex.Close()
+  encoderIndex := gob.NewEncoder(fileIndex)
+  encoderIndex.Encode(memShopReg)
+}
+
+
+func LoadFileShops(wg *sync.WaitGroup, filename string) {
+  defer wg.Done()
+  file, err := os.Open(filename)
+  if err !=nil {
+    glog.Errorf("ERR: Load(%s): %v", filename, err)
+    return
+  }
+  defer file.Close()
+  
+  decoder := gob.NewDecoder(file)
+  err = decoder.Decode(&memShop)
+  if err != nil {
+    glog.Errorf("ERR: Decoder(%s): %v", filename, err)
+    return
+  }
+  
+  fileI, errI := os.Open(filename+".index")
+  if errI !=nil {
+    glog.Errorf("ERR: Load(%s): %v", filename+".index", errI)
+    return
+  }
+  defer file.Close()
+  
+  decoderI := gob.NewDecoder(fileI)
+  errI = decoderI.Decode(&memShopReg)
+  if errI != nil {
+    glog.Errorf("ERR: Decoder(%s): %v", filename+".index", errI)
+    return
+  }
 }
 

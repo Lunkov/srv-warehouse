@@ -1,6 +1,10 @@
 package main
 
 import (
+  "sync"
+  "encoding/gob"
+  "os"
+  "github.com/golang/glog"
 )
 
 type Region struct {
@@ -41,4 +45,29 @@ func GetRegionByID(id int64) (*Region) {
 
 func loadRegions(filename string) {
   
+}
+
+func WriteFileRegions(wg *sync.WaitGroup, filename string) {
+  defer wg.Done()
+  file, _ := os.Create(filename)
+  defer file.Close()
+  encoder := gob.NewEncoder(file)
+  encoder.Encode(memRegion)
+}
+
+func LoadFileRegions(wg *sync.WaitGroup, filename string) {
+  defer wg.Done()
+  file, err := os.Open(filename)
+  if err !=nil {
+    glog.Errorf("ERR: Load(%s): %v", filename, err)
+    return
+  }
+  defer file.Close()
+  
+  decoder := gob.NewDecoder(file)
+  err = decoder.Decode(&memRegion)
+  if err != nil {
+    glog.Errorf("ERR: Decoder(%s): %v", filename, err)
+    return
+  }
 }

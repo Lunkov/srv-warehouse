@@ -2,6 +2,9 @@ package main
 
 import (
   "sync"
+  "encoding/gob"
+  "os"
+  "github.com/golang/glog"
 )
 
 // Товары
@@ -33,4 +36,29 @@ func GetGoodsByID(id int64) (*Goods) {
     return &item
   }
   return nil
+}
+
+func WriteFileGoods(wg *sync.WaitGroup, filename string) {
+  defer wg.Done()
+  file, _ := os.Create(filename)
+  defer file.Close()
+  encoder := gob.NewEncoder(file)
+  encoder.Encode(memG)
+}
+
+func LoadFileGoods(wg *sync.WaitGroup, filename string) {
+  defer wg.Done()
+  file, err := os.Open(filename)
+  if err !=nil {
+    glog.Errorf("ERR: Load(%s): %v", filename, err)
+    return
+  }
+  defer file.Close()
+  
+  decoder := gob.NewDecoder(file)
+  err = decoder.Decode(&memG)
+  if err != nil {
+    glog.Errorf("ERR: Decoder(%s): %v", filename, err)
+    return
+  }
 }
