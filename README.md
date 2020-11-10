@@ -197,7 +197,10 @@ go test -bench=BenchmarkWrite -benchmem -cpuprofile=cpu.out -memprofile=mem.out
 goos: linux
 goarch: amd64
 BenchmarkWrite-4   	       1	12592833076 ns/op	4096895096 B/op	61332484 allocs/op
+
 Write ~13s
+Showing nodes accounting for 6.28GB, 99.01% of 6.35GB total
+Dropped 37 nodes (cum <= 0.03GB)
 ```
 ### Read
 ```
