@@ -9,8 +9,8 @@ import (
 )
 
 func BenchmarkWrite(b *testing.B) {
-  //fillData4Tests()
-  LoadAll()
+  fillData4Tests()
+  //LoadAll()
   b.ResetTimer()
   SaveAll()
 }

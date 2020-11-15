@@ -10,22 +10,22 @@ import (
 
 // Заполняем тестовыми данными
 func fillData4Tests() {
-  var i, cWH, cSP, cPR, cPRWH, cPRSP, cRegions int64
+  var i, cWarehouses, cShops, cGoods, cPRWH, cPRSP, cRegions int64
 
-  cRegions =   200 // Количество регионов
-  cWH   =    10000 // Количество складов
-  cSP   =     5000 // Количество магазинов
-  cPR   =   200000 // Количество товаров
-  cPRWH =  cPR * cWH /100 // Количество товаров на складах
-  cPRSP =  cPR * cSP /100  // Количество товаров в магазинах
+  cRegions      =        1 // Количество регионов
+  cWarehouses   =       50 // Количество складов
+  cShops        =      100 // Количество магазинов
+  cGoods        =   200000 // Количество товаров
+  cPRWH         = 20000000 // cPR * cWH // Количество товаров на складах
+  cPRSP         = 10000000 // cPR * cSP  // Количество товаров в магазинах
 
-  glog.Infof("LOG: Regions:        %d", RegionCount())
-  glog.Infof("LOG: Regions: sizeof=%d", unsafe.Sizeof(Region{}))
-  glog.Infof("LOG: Warehouses:     %d", WarehouseCount())
-  glog.Infof("LOG: Warehouses: sizeof=%d", unsafe.Sizeof(Warehouse{}))
-  glog.Infof("LOG: Shops:          %d", ShopCount())
-  glog.Infof("LOG: Goods:          %d", GoodsCount())
-
+  RegionInit(cRegions)
+  ShopInit(cShops)
+  WarehouseInit(cWarehouses)
+  GoodsInit(cGoods)
+  ShopGoodsInit(cGoods, cShops)
+  WarehouseGoodsInit(cGoods, cWarehouses)
+  
   glog.Infof("LOG: Goods in WH:     %d", cPRWH)
   glog.Infof("LOG: Goods in WH: sizeof=%d", unsafe.Sizeof(WarehouseGoods{}))
   glog.Infof("LOG: Goods in WHL:sizeof=%d", unsafe.Sizeof(WarehouseGoodsLite{}))
@@ -36,15 +36,15 @@ func fillData4Tests() {
     RegionAppend(&Region{ID: i, Name: fmt.Sprintf("Name_WH_%d", i) })
   }
   
-  for i = 0; i <= cWH; i++ {
+  for i = 0; i <= cWarehouses; i++ {
     WarehouseAppend(&Warehouse{CODE: fmt.Sprintf("a%d", i), Name: fmt.Sprintf("Name_WH_%d", i), Region_ID: rand.Int63n(RegionCount()) })
   }
   
-  for i = 0; i <= cSP; i++ {
+  for i = 0; i <= cShops; i++ {
     ShopAppend(&Shop{CODE: fmt.Sprintf("s%d", i), Name: fmt.Sprintf("SHOP_%d", i), Region_ID: rand.Int63n(RegionCount()) })
   }
 
-  for i = 0; i <= cPR; i++ {
+  for i = 0; i <= cGoods; i++ {
     GoodsAppend(&Goods{ID: i, Name: fmt.Sprintf("Product_%d", i) })
   }
   //  Случайно раскидываем товары по магазинам

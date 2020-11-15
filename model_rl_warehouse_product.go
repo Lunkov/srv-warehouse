@@ -4,6 +4,7 @@ import (
   "sync"
   "encoding/gob"
   "os"
+  "unsafe"
   "github.com/golang/glog"
 )
 
@@ -22,12 +23,24 @@ type WarehouseGoodsLite struct {
 }
 
 var muPrWH   sync.RWMutex
-var memPrWH = make(map[int64]map[string]WarehouseGoodsLite)
+var memPrWH map[int64]map[string]WarehouseGoodsLite
+
+var maxx_warehouses int64
+var maxx_wgoods int64
+
+func WarehouseGoodsInit(max_goods int64, max_warehouses int64) {
+  maxx_warehouses = maxx_warehouses
+  maxx_wgoods = max_goods
+  memPrWH = make(map[int64]map[string]WarehouseGoodsLite, max_goods)
+  
+  glog.Infof("LOG: Goods In Warehouses: sizeof(item) = %d", unsafe.Sizeof(WarehouseGoodsLite{}))
+  glog.Infof("LOG: Goods In Warehouses: sizeof(map)  = %d", unsafe.Sizeof(memPrWH))
+}
 
 func WarehouseGoodsAppend(info *WarehouseGoods) {
   muPrWH.Lock()
   if _, ok := memPrWH[info.Goods_ID]; !ok {
-    memPrWH[info.Goods_ID] = make(map[string]WarehouseGoodsLite)
+    memPrWH[info.Goods_ID] = make(map[string]WarehouseGoodsLite, maxx_warehouses)
   }
   var whl WarehouseGoodsLite
   whl.Quantity = info.Quantity

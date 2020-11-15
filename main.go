@@ -14,8 +14,9 @@ func main() {
   flag.Set("v", "9")
   flag.Parse()
   
-  //fillData4Tests()
-  LoadAll()
+  fillData4Tests()
+  //LoadAll()
+  SaveAll()
   
   router := mux.NewRouter()
   

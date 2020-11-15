@@ -4,6 +4,7 @@ import (
   "sync"
   "encoding/gob"
   "os"
+  "unsafe"
   "github.com/golang/glog"
 )
 
@@ -23,12 +24,23 @@ type ShopGoodsLite struct {
 
 var muPrSP   sync.RWMutex
 
-var memPrSP = make(map[int64]map[string]ShopGoodsLite)
+var memPrSP = make(map[int64]map[string]ShopGoodsLite, 100000)
+var maxx_shops int64
+var maxx_goods int64
+
+func ShopGoodsInit(max_goods int64, max_shops int64) {
+  maxx_shops = max_shops
+  maxx_goods = max_goods
+  memPrSP = make(map[int64]map[string]ShopGoodsLite, max_goods)
+  
+  glog.Infof("LOG: Goods In Shops: sizeof(item) = %d", unsafe.Sizeof(ShopGoodsLite{}))
+  glog.Infof("LOG: Goods In Shops: sizeof(map)  = %d", unsafe.Sizeof(memPrSP))
+}
 
 func ShopGoodsAppend(info *ShopGoods) {
   muPrSP.Lock()
   if _, ok := memPrSP[info.Goods_ID]; !ok {
-    memPrSP[info.Goods_ID] = make(map[string]ShopGoodsLite)
+    memPrSP[info.Goods_ID] = make(map[string]ShopGoodsLite, maxx_goods)
   }
   var sgl ShopGoodsLite
   sgl.Quantity = info.Quantity
@@ -50,31 +62,6 @@ func RlGetGoodsInShop(goods_id int64, shop_id string) (*ShopGoodsLite) {
   
   return &ShopGoodsLite{Quantity: 0, Cost: 0}
 }
-/*
-var memPrSP = make(map[int64]map[string]ShopGoods)
-
-func ShopGoodsAppend(info *ShopGoods) {
-  muPrSP.Lock()
-  if _, ok := memPrSP[info.Goods_ID]; !ok {
-    memPrSP[info.Goods_ID] = make(map[string]ShopGoods)
-  }
-  memPrSP[info.Goods_ID][info.Shop_ID] = *info
-  muPrSP.Unlock()
-}
-
-func RlGetGoodsInShop(goods_id int64, shop_id string) (*ShopGoods) {
-  muPrSP.RLock()
-  item, ok := memPrSP[goods_id]
-  muPrSP.RUnlock()
-  if ok {
-    res, ok2 := item[shop_id]
-    if ok2 {
-      return &res
-    }
-  }
-  
-  return &ShopGoods{Shop_ID: shop_id, Goods_ID: goods_id, Quantity: 0, Cost: 0}
-}*/
 
 func WriteFileQuantityInShops(wg *sync.WaitGroup, filename string) {
   defer wg.Done()

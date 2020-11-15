@@ -187,9 +187,9 @@ After random
 $go test -bench=BenchmarkWrite -benchmem -cpuprofile=cpu.out -memprofile=mem.out
 goos: linux
 goarch: amd64
-BenchmarkWrite-4   	       1	20689040987 ns/op	4096972656 B/op	61332534 allocs/op
+BenchmarkWrite-4   	       1	18379591667 ns/op	4096934688 B/op	61332546 allocs/op
 
-Write ~20s
+Write ~18s
 ```
 After load
 ```

@@ -4,6 +4,7 @@ import (
   "sync"
   "encoding/gob"
   "os"
+  "unsafe"
   "github.com/golang/glog"
 )
 
@@ -16,9 +17,16 @@ type Shop struct {
   Description  string    `db:"description"    json:"description"     yaml:"description"`
 }
 
-var memShop    = make(map[string]Shop)
-var memShopReg = make(map[int64][]string) // index region_id -> shops
+var memShop map[string]Shop
+var memShopReg = make(map[int64][]string, 100) // index region_id -> shops
 var muShop   sync.RWMutex
+
+func ShopInit(max int64) {
+  memShop = make(map[string]Shop, max)
+  glog.Infof("LOG: Shops: max          = %d", max)
+  glog.Infof("LOG: Shops: sizeof(item) = %d", unsafe.Sizeof(Shop{}))
+  glog.Infof("LOG: Shops: sizeof(map)  = %d", unsafe.Sizeof(memShop))
+}
 
 func ShopCount() int {
   return len(memShop)

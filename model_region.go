@@ -4,6 +4,7 @@ import (
   "sync"
   "encoding/gob"
   "os"
+  "unsafe"
   "github.com/golang/glog"
 )
 
@@ -12,20 +13,14 @@ type Region struct {
   Name         string    `db:"title"          json:"title"          yaml:"title"`
 }
 
-/*
-type District struct {
-  r   []Region `json:"regions"`
-}
+var memRegion map[int64]Region
 
-type Districts struct {
-  d    []District `json:"federalDistricts"`
+func RegionInit(max int64) {
+  memRegion = make(map[int64]Region, max)
+  glog.Infof("LOG: Region: max          = %d", max)
+  glog.Infof("LOG: Region: sizeof(item) = %d", unsafe.Sizeof(Region{}))
+  glog.Infof("LOG: Region: sizeof(map)  = %d", unsafe.Sizeof(memRegion))
 }
-
-type Regions struct {
-}
-*/
-
-var memRegion = make(map[int64]Region)
 
 func RegionCount() int64 {
   return int64(len(memRegion))
